@@ -1,0 +1,15 @@
+{
+	"name": "sjelfull/airtable",
+	"description": "Sweet saving and fetching of data with Airtable",
+	"type": "craft-plugin",
+	"authors": [
+		{
+			"name": "Superbig",
+			"homepage": "https://superbig.co"
+		}
+	],
+	"require": {
+		"composer/installers": "~1.0",
+		"armetiz/airtable-php": "^0.3.1"
+	}
+}
