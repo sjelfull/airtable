@@ -27,15 +27,16 @@ class Airtable
      * @param string $accessToken
      * @param string $base
      */
-    public function __construct($accessToken, $base)
+    public function __construct ($accessToken, $base)
     {
         Assertion::string($accessToken);
 
         // @see https://github.com/kriswallsmith/Buzz/pull/186
         $listener = new Buzz\Listener\CallbackListener(function (Buzz\Message\RequestInterface $request, $response = null) use ($accessToken) {
-            if ($response) {
+            if ( $response ) {
                 // postSend
-            } else {
+            }
+            else {
                 // preSend
                 $request->addHeader(sprintf('Authorization: Bearer %s', $accessToken));
             }
@@ -47,7 +48,7 @@ class Airtable
         $this->base = $base;
     }
 
-    public function createRecord($table, array $fields)
+    public function createRecord ($table, array $fields)
     {
         /** @var Response $response */
         $response = $this->browser->post(
@@ -64,13 +65,14 @@ class Airtable
     }
 
     /**
-     * This will update all fields of a table record, issuing a PUT request to the record endpoint. Any fields that are not included will be cleared ().
+     * This will update all fields of a table record, issuing a PUT request to the record endpoint. Any fields that are
+     * not included will be cleared ().
      *
      * @param string $table
      * @param array  $criteria
      * @param array  $fields
      */
-    public function setRecord($table, array $criteria = [], array $fields)
+    public function setRecord ($table, array $criteria = [ ], array $fields)
     {
         $record = $this->findRecord($table, $criteria);
 
@@ -89,13 +91,14 @@ class Airtable
     }
 
     /**
-     * This will update some (but not all) fields of a table record, issuing a PATCH request to the record endpoint. Any fields that are not included will not be updated.
+     * This will update some (but not all) fields of a table record, issuing a PATCH request to the record endpoint.
+     * Any fields that are not included will not be updated.
      *
      * @param string $table
      * @param array  $criteria
      * @param array  $fields
      */
-    public function updateRecord($table, array $criteria = [], array $fields)
+    public function updateRecord ($table, array $criteria = [ ], array $fields)
     {
         $record = $this->findRecord($table, $criteria);
 
@@ -113,12 +116,12 @@ class Airtable
         $this->guardResponse($table, $response);
     }
 
-    public function containsRecord($table, array $criteria = [])
+    public function containsRecord ($table, array $criteria = [ ])
     {
         return !is_null($this->findRecord($table, $criteria));
     }
 
-    public function flushRecords($table)
+    public function flushRecords ($table)
     {
         $records = $this->findRecords($table);
 
@@ -136,7 +139,7 @@ class Airtable
         }
     }
 
-    public function deleteRecord($table, array $criteria = [])
+    public function deleteRecord ($table, array $criteria = [ ])
     {
         $record = $this->findRecord($table, $criteria);
 
@@ -157,18 +160,18 @@ class Airtable
      *
      * @return Record|null
      */
-    public function findRecord($table, array $criteria = [])
+    public function findRecord ($table, array $criteria = [ ])
     {
         $records = $this->findRecords($table, $criteria);
 
-        if (count($records) > 1) {
+        if ( count($records) > 1 ) {
             throw new \RuntimeException(sprintf(
                 "More than one records have been found from '%s:%s'.",
                 $this->base, $table
             ));
         }
 
-        if (count($records) === 0) {
+        if ( count($records) === 0 ) {
             return null;
         }
 
@@ -176,19 +179,19 @@ class Airtable
     }
 
     /**
-     * TODO - Be able to loop over multiple pages. 
-     * 
+     * TODO - Be able to loop over multiple pages.
+     *
      * @param       $table
      * @param array $criteria
      *
      * @return Record[]
      */
-    public function findRecords($table, array $criteria = [])
+    public function findRecords ($table, array $criteria = [ ])
     {
         $url = $this->getEndpoint($table);
 
-        if (count($criteria) > 0) {
-            $formulas = [];
+        if ( count($criteria) > 0 ) {
+            $formulas = [ ];
             foreach ($criteria as $field => $value) {
                 $formulas[] = sprintf("%s='%s'", $field, $value);
             }
@@ -216,10 +219,10 @@ class Airtable
         }, $data["records"]);
     }
 
-    protected function getEndpoint($table, $id = null)
+    protected function getEndpoint ($table, $id = null)
     {
-        if ($id) {
-            $urlPattern = "https://api-airtable-com-yifznjpyod6i.runscope.net/v0/%BASE%/%TABLE%/%ID%";
+        if ( $id ) {
+            $urlPattern = "https://api.airtable.com/v0/%BASE%/%TABLE%/%ID%";
 
             return strtr($urlPattern, [
                 '%BASE%'  => $this->base,
@@ -228,7 +231,7 @@ class Airtable
             ]);
         }
 
-        $urlPattern = "https://api-airtable-com-yifznjpyod6i.runscope.net/v0/%BASE%/%TABLE%";
+        $urlPattern = "https://api.airtable.com/v0/%BASE%/%TABLE%";
 
         return strtr($urlPattern, [
             '%BASE%'  => $this->base,
@@ -240,9 +243,9 @@ class Airtable
      * @param string   $table
      * @param Response $response
      */
-    protected function guardResponse($table, Response $response)
+    protected function guardResponse ($table, Response $response)
     {
-        if (429 === $response->getStatusCode()) {
+        if ( 429 === $response->getStatusCode() ) {
             throw new \RuntimeException(sprintf(
                     'Rate limit reach on "%s:%s".',
                     $this->base,
@@ -251,10 +254,10 @@ class Airtable
             );
         }
 
-        if (200 !== $response->getStatusCode()) {
+        if ( 200 !== $response->getStatusCode() ) {
             $content = json_decode($response->getContent(), true);
             $message = "No details";
-            if (isset($content["error"]["message"])) {
+            if ( isset($content["error"]["message"]) ) {
                 $message = $content["error"]["message"];
             }
 
