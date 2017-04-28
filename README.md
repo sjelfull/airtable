@@ -88,5 +88,6 @@ Some things to do, and ideas for potential features:
 * Support multiple tables
 * Better validation
 * Add model for showing errors & previous input
+* Support attachments
 
 Brought to you by [Superbig](https://superbig.co)
