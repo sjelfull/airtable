@@ -16,54 +16,69 @@ Airtable works on Craft 2.4.x and Craft 2.5.x.
 
 ## Airtable Overview
 
--Insert text here-
+[Airtable](https://airtable.com/invite/r/znUACjay) is a human-friendly database solution that makes it super easy to manage both simple and complex, relational data.
 
 ## Configuring Airtable
 
+```php
+<?php
+return [
+    // Find this on https://airtable.com/account
+    'apiKey'        => '',
 
+    // Find this on https://airtable.com/api
+    'base'
+                    => '',
+    // The name of the table. Make sure the capitalization is correct
+    'table'         => '',
+
+    // Allowed field keys. This matches the field names in the table
+    'allowedFields' => [ ],
+];
+```
 
 ## Using Airtable
 
 _Example form_
 
 ```twig
-    <form method="post" accept-charset="UTF-8">
-        {{ getCsrfInput() }}
-        <input type="hidden" name="action" value="airtable/save">
-        <input type="hidden" name="redirect" value="airtable?success={slug}">
-        <input type="hidden" name="enabled" value="1">
+<form method="post" accept-charset="UTF-8">
+    {{ getCsrfInput() }}
+    <input type="hidden" name="action" value="airtable/save">
+    <input type="hidden" name="redirect" value="airtable?success={slug}">
+    <input type="hidden" name="enabled" value="1">
 
-        {% macro errorList(errors) %}
-            {% if errors %}
-                <ul class="errors">
-                    {% for error in errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endmacro %}
-
-        {% from _self import errorList %}
-
-        <label for="title">Name</label>
-        <input id="title" type="text" name="Name"
-                {%- if airtable is defined %} value="{{ airtable.Name }}"{% endif -%}>
-
-        {% if entry is defined %}
-            {{ errorList(entry.getErrors('Name')) }}
+    {% macro errorList(errors) %}
+        {% if errors %}
+            <ul class="errors">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
         {% endif %}
+    {% endmacro %}
 
-        <label for="notes">Notes</label>
-        <textarea id="notes" name="Notes">
-            {%- if airtable is defined %}{{ airtable.Notes }}{% endif -%}
-        </textarea>
+    {% from _self import errorList %}
 
-        {% if airtable is defined %}
-            {{ errorList(airtable.getErrors('Notes')) }}
-        {% endif %}
+    <label for="title">Name</label>
+    <input id="title" type="text" name="Name"
+            {%- if airtable is defined %} value="{{ airtable.Name }}"{% endif -%}>
 
-        <input type="submit" value="Publish">
-    </form>
+    {% if entry is defined %}
+        {{ errorList(entry.getErrors('Name')) }}
+    {% endif %}
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="Notes">
+        {%- if airtable is defined %}{{ airtable.Notes }}{% endif -%}
+    </textarea>
+
+    {% if airtable is defined %}
+        {{ errorList(airtable.getErrors('Notes')) }}
+    {% endif %}
+
+    <input type="submit" value="Save">
+</form>
 ```
 
 ## Airtable Roadmap
