@@ -17,8 +17,8 @@ class AirtableVariable
 {
     /**
      */
-    public function exampleVariable($optional = null)
+    public function findRecords ($criteria = [ ])
     {
-        return "And away we go to the Twig template...";
+        return craft()->airtable->findRecords($criteria);
     }
 }

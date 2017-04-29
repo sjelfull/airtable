@@ -31,28 +31,66 @@ class AirtableService extends BaseApplicationComponent
         $this->client = new Airtable($key, $this->base);
     }
 
-    public function filteredInput ()
+    public function filteredContent ()
     {
+        $model = new AirtableModel();
+
         // Get fields
-        $fields = craft()->config->get('allowedFields', 'airtable');
+        $fields = $this->getFields();
         $data   = [ ];
 
         foreach ($fields as $key) {
-            $value = craft()->request->getParam($key);
+            if ( is_array($key) ) {
+                $config = $key;
+                $key    = $config['id'];
+                $value  = craft()->request->getParam($key);
 
-            if ( empty($value) ) {
-                continue;
+                if ( isset($config['type']) && $config['type'] == 'checkbox' ) {
+                    $value = !empty(craft()->request->getParam($key));
+                }
+            }
+            else {
+                $value = craft()->request->getParam($key);
+
+                if ( empty($value) ) {
+                    continue;
+                }
             }
 
-            $data[ $key ] = $value;
+            $model->setAttribute($key, $value);
+
+            //$data[ $key ] = $value;
         }
 
-        return $data;
+        return $model;
     }
 
-    public function saveOrUpdate ($data, $id = null)
+    public function findRecords ($criteria = [ ])
+    {
+        try {
+            $records = $this->client->findRecords($this->table, $criteria);
+
+            return $records;
+        }
+        catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    public function saveOrUpdate (AirtableModel $model, $id = null)
     {
         $criteria = [ ];
+        $data     = $model->getAttributes();
+
+        // Process dates
+        foreach ($this->getDateFields() as $config) {
+            $key   = $config['id'];
+            $value = $data[ $key ];
+
+            if ( $value instanceof DateTime ) {
+                $data[ $key ] = $value->format(DateTime::ISO8601);
+            }
+        }
 
         if ( !empty($id) ) {
             $criteria['Id'] = $id;
@@ -65,16 +103,9 @@ class AirtableService extends BaseApplicationComponent
             else {
                 $this->client->createRecord($this->table, $data);
             }
-
-            return [
-                'success' => true,
-            ];
         }
         catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => $e->getMessage(),
-            ];
+            $model->addError('server', $e->getMessage());
         }
     }
 
@@ -86,6 +117,26 @@ class AirtableService extends BaseApplicationComponent
     public function delete ($id)
     {
         $this->client->deleteRecord($this->table, [ "Id" => $id ]);
+    }
+
+    public function getFields ()
+    {
+        $fields = craft()->config->get('allowedFields', 'airtable');
+
+        return $fields;
+    }
+
+    public function getDateFields ()
+    {
+        $fields = $this->getFields();
+
+        return array_filter($fields, function ($value, $key) {
+
+            if ( is_array($value) && isset($value['type']) && $value['type'] == 'date' ) {
+                return true;
+            }
+
+        }, ARRAY_FILTER_USE_BOTH);
     }
 
 }
