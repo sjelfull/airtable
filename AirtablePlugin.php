@@ -46,7 +46,7 @@ class AirtablePlugin extends BasePlugin
      */
     public function getDocumentationUrl ()
     {
-        return 'https://github.com/sjelfull/airtable/blob/master/README.md';
+        return 'https://superbig.co/plugins/airtable';
     }
 
     /**
@@ -54,7 +54,7 @@ class AirtablePlugin extends BasePlugin
      */
     public function getReleaseFeedUrl ()
     {
-        return 'https://raw.githubusercontent.com/sjelfull/airtable/master/releases.json';
+        return 'https://superbig.co/plugins/airtable/feed';
     }
 
     /**
@@ -89,14 +89,5 @@ class AirtablePlugin extends BasePlugin
         return 'https://superbig.co';
     }
 
-    /**
-     * @return mixed
-     */
-    public function getSettingsHtml ()
-    {
-        return craft()->templates->render('airtable/Airtable_Settings', array(
-            'settings' => $this->getSettings()
-        ));
-    }
 
 }
